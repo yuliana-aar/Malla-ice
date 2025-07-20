@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Malla Ingeniería Civil Eléctrica UBB</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #fff0f5;
+      color: #333;
+      margin: 0;
+      padding: 2em;
+    }
+
+    h1, h2, h3 {
+      color: #d97ea3;
+    }
+
+    .year {
+      margin-bottom: 3em;
+    }
+
+    .semester {
+      margin-bottom: 1em;
+    }
+
+    .course {
+      padding: 0.5em 1em;
+      background-color: #ffe4ec;
+      border: 2px solid #f8c4d9;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .course.completed {
+      background-color: #d8ffd8;
+      text-decoration: line-through;
+    }
+
+    .course.locked {
+      background-color: #f3f3f3;
+      border: 2px dashed #ccc;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background-color: #f8c4d9;
+      color: #333;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      white-space: nowrap;
+      display: none;
+      z-index: 1;
+    }
+
+    .course.locked:hover .tooltip {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Ingeniería Civil Eléctrica UBB</h1>
+  <div id="malla"></div>
+  <script>
+    const cursos = [
+      {
+        año: "1° Año",
+        semestres: [
+          {
+            nombre: "Semestre I",
+            ramos: [
+              { nombre: "Cálculo I", codigo: "calculo1", requisitos: [] },
+              { nombre: "Álgebra y Trigonometría", codigo: "algebra", requisitos: [] },
+              { nombre: "Química", codigo: "quimica", requisitos: [] },
+              { nombre: "Introducción a la Ingeniería", codigo: "introIng", requisitos: [] },
+              { nombre: "Formación Integral I", codigo: "fi1", requisitos: [] }
+            ]
+          },
+          {
+            nombre: "Semestre II",
+            ramos: [
+              { nombre: "Cálculo II", codigo: "calculo2", requisitos: ["calculo1"] },
+              { nombre: "Álgebra Lineal", codigo: "algebraLineal", requisitos: ["algebra"] },
+              { nombre: "Física I", codigo: "fisica1", requisitos: ["quimica"] },
+              { nombre: "Taller de Comunicación I", codigo: "com1", requisitos: [] },
+              { nombre: "Formación Integral II", codigo: "fi2", requisitos: ["fi1"] }
+            ]
+          }
+        ]
+      },
+      {
+        año: "2° Año",
+        semestres: [
+          {
+            nombre: "Semestre III",
+            ramos: [
+              { nombre: "Cálculo III", codigo: "calculo3", requisitos: ["calculo2"] },
+              { nombre: "Ecuaciones Diferenciales", codigo: "ecuaciones", requisitos: ["calculo2"] },
+              { nombre: "Física II", codigo: "fisica2", requisitos: ["fisica1"] },
+              { nombre: "Taller de Comunicación II", codigo: "com2", requisitos: ["com1"] },
+              { nombre: "Introducción a la Ciencia de Datos", codigo: "datos", requisitos: [] },
+              { nombre: "Programación", codigo: "programacion", requisitos: [] }
+            ]
+          },
+          {
+            nombre: "Semestre IV",
+            ramos: [
+              { nombre: "Cálculo IV", codigo: "calculo4", requisitos: ["calculo3"] },
+              { nombre: "Fenómenos Determinísticos", codigo: "fenomenos", requisitos: ["ecuaciones"] },
+              { nombre: "Campos Electromagnéticos", codigo: "campos", requisitos: ["fisica2"] },
+              { nombre: "Laboratorio de Fenómenos y Sistemas", codigo: "labFenomenos", requisitos: ["com2"] },
+              { nombre: "Inglés Comunicacional I", codigo: "ingles1", requisitos: [] } // 70 SCT evaluable manualmente
+            ]
+          }
+        ]
+      },
+      {
+        año: "3° Año",
+        semestres: [
+          {
+            nombre: "Semestre V",
+            ramos: [
+              { nombre: "Métodos Numéricos", codigo: "metNum", requisitos: ["calculo4", "fenomenos"] },
+              { nombre: "Métodos Aplicados a la Ingeniería", codigo: "metIng", requisitos: ["labFenomenos"] },
+              { nombre: "Máquinas Eléctricas", codigo: "maquinas", requisitos: ["campos"] },
+              { nombre: "Análisis de Sistemas", codigo: "analisis", requisitos: ["programacion"] },
+              { nombre: "Inglés Comunicacional II", codigo: "ingles2", requisitos: ["ingles1"] }
+            ]
+          },
+          {
+            nombre: "Semestre VI",
+            ramos: [
+              { nombre: "Economía", codigo: "economia", requisitos: ["metNum"] },
+              { nombre: "Sistemas de Potencia I", codigo: "potencia1", requisitos: ["maquinas"] },
+              { nombre: "Laboratorio de Máquinas Eléctricas", codigo: "labMaquinas", requisitos: ["maquinas"] },
+              { nombre: "Termoelectricidad", codigo: "termo", requisitos: ["analisis"] },
+              { nombre: "Electrónica I", codigo: "elec1", requisitos: ["programacion"] }
+            ]
+          }
+        ]
+      },
+      {
+        año: "4° Año",
+        semestres: [
+          {
+            nombre: "Semestre VII",
+            ramos: [
+              { nombre: "Gestión Industrial", codigo: "gestion", requisitos: ["economia"] },
+              { nombre: "Distribución de Energía", codigo: "distribucion", requisitos: ["potencia1"] },
+              { nombre: "Control de Energía", codigo: "control", requisitos: ["labMaquinas"] },
+              { nombre: "Control Automático", codigo: "controlAuto", requisitos: ["termo"] },
+              { nombre: "Electrónica II", codigo: "elec2", requisitos: ["elec1"] },
+              { nombre: "Inglés Comunicacional III", codigo: "ingles3", requisitos: ["ingles2"] }
+            ]
+          },
+          {
+            nombre: "Semestre VIII",
+            ramos: [
+              { nombre: "Producción", codigo: "produccion", requisitos: ["gestion"] },
+              { nombre: "Sistemas de Potencia II", codigo: "potencia2", requisitos: ["distribucion"] },
+              { nombre: "Sistemas de Protección", codigo: "proteccion", requisitos: ["control"] },
+              { nombre: "Mantenimiento y Seguridad", codigo: "mantencion", requisitos: ["elec2"] },
+              { nombre: "Electivo Profesional I", codigo: "electivo1", requisitos: [] }, // 180 SCT evaluable manualmente
+              { nombre: "Electivo de Formación Integral", codigo: "efi", requisitos: ["fi2"] }
+            ]
+          }
+        ]
+      },
+      {
+        año: "5° Año",
+        semestres: [
+          {
+            nombre: "Semestre IX",
+            ramos: [
+              { nombre: "Proyecto y Eval. de Inversiones", codigo: "evalInv", requisitos: ["produccion"] },
+              { nombre: "Accionamientos Eléctricos", codigo: "accionamientos", requisitos: ["proteccion"] },
+              { nombre: "Electivo Profesional II", codigo: "electivo2", requisitos: ["electivo1"] },
+              { nombre: "Electivo Profesional III", codigo: "electivo3", requisitos: ["electivo2"] },
+              { nombre: "Práctica Profesional", codigo: "practica", requisitos: [] } // 240 SCT evaluable manualmente
+            ]
+          },
+          {
+            nombre: "Semestre X",
+            ramos: [
+              { nombre: "Gestión de Personal", codigo: "gestionPers", requisitos: ["evalInv"] },
+              { nombre: "Proyecto Eléctrico", codigo: "proyecto", requisitos: ["accionamientos"] },
+              { nombre: "Electivo Profesional IV", codigo: "electivo4", requisitos: ["electivo3"] },
+              { nombre: "Electivo Profesional V", codigo: "electivo5", requisitos: ["electivo4"] },
+              { nombre: "Electivo Profesional VI", codigo: "electivo6", requisitos: ["electivo5"] },
+              { nombre: "Formación Integral IV", codigo: "fi4", requisitos: [] } // depende de FI3 no listada
+            ]
+          }
+        ]
+      },
+      {
+        año: "6° Año",
+        semestres: [
+          {
+            nombre: "Semestre XI",
+            ramos: [
+              { nombre: "Proyecto de Título", codigo: "titulo", requisitos: [] } // 270 SCT evaluable manualmente
+            ]
+          }
+        ]
+      }
+    ];
+    const mallaDiv = document.getElementById("malla");
+    const progreso = JSON.parse(localStorage.getItem("progresoMalla")) || {};
+
+    function guardarProgreso() {
+      localStorage.setItem("progresoMalla", JSON.stringify(progreso));
+    }
+
+    function crearCurso(ramo) {
+      const div = document.createElement("div");
+      div.className = "course";
+      div.textContent = ramo.nombre;
+      div.dataset.codigo = ramo.codigo;
+
+      const completado = progreso[ramo.codigo];
+      const requisitosCompletos = ramo.requisitos.every(r => progreso[r]);
+
+      if (completado) {
+        div.classList.add("completed");
+      } else if (!requisitosCompletos && ramo.requisitos.length > 0) {
+        div.classList.add("locked");
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        const faltantes = ramo.requisitos
+          .filter(r => !progreso[r])
+          .map(r => r.toUpperCase())
+          .join(", ");
+        tooltip.textContent = "Faltan: " + faltantes;
+        div.appendChild(tooltip);
+      }
+
+      div.addEventListener("click", () => {
+        if (div.classList.contains("locked")) return;
+
+        progreso[ramo.codigo] = !progreso[ramo.codigo];
+        guardarProgreso();
+        renderMalla();
+      });
+
+      return div;
+    }
+
+    function renderMalla() {
+      mallaDiv.innerHTML = "";
+      cursos.forEach(curso => {
+        const yearDiv = document.createElement("div");
+        yearDiv.className = "year";
+        const yearTitle = document.createElement("h2");
+        yearTitle.textContent = curso.año;
+        yearDiv.appendChild(yearTitle);
+
+        curso.semestres.forEach(sem => {
+          const semDiv = document.createElement("div");
+          semDiv.className = "semester";
+          const semTitle = document.createElement("h3");
+          semTitle.textContent = sem.nombre;
+          semDiv.appendChild(semTitle);
+
+          sem.ramos.forEach(ramo => {
+            semDiv.appendChild(crearCurso(ramo));
+          });
+
+          yearDiv.appendChild(semDiv);
+        });
+
+        mallaDiv.appendChild(yearDiv);
+      });
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
