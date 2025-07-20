@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Malla Ingeniería Civil Eléctrica UBB</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #fff0f5;
+      color: #333;
+      margin: 0;
+      padding: 2em;
+    }
+
+    h1, h2 {
+      color: #d97ea3;
+    }
+
+    .year {
+      margin-bottom: 3em;
+    }
+
+    .semester {
+      margin-bottom: 1em;
+    }
+
+    .course {
+      padding: 0.5em 1em;
+      background-color: #ffe4ec;
+      border: 2px solid #f8c4d9;
+      margin: 5px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.3s;
+    }
+
+    .course.completed {
+      background-color: #d8ffd8;
+      text-decoration: line-through;
+    }
+
+    .course.locked {
+      background-color: #f3f3f3;
+      border: 2px dashed #ccc;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background-color: #f8c4d9;
+      color: #333;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      white-space: nowrap;
+      display: none;
+    }
+
+    .course.locked:hover .tooltip {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Ingeniería Civil Eléctrica UBB</h1>
+  <div id="malla"></div>
+
+  <script>
+const cursos = [
+  {
+    "año": "1° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre I",
+        "ramos": [
+          {
+            "nombre": "Cálculo I",
+            "codigo": "calculo1",
+            "requisitos": []
+          },
+          {
+            "nombre": "Álgebra y Trigonometría",
+            "codigo": "algebra",
+            "requisitos": []
+          },
+          {
+            "nombre": "Química",
+            "codigo": "quimica",
+            "requisitos": []
+          },
+          {
+            "nombre": "Introducción a la Ingeniería",
+            "codigo": "introIng",
+            "requisitos": []
+          },
+          {
+            "nombre": "Formación Integral I",
+            "codigo": "fi1",
+            "requisitos": []
+          }
+        ]
+      },
+      {
+        "nombre": "Semestre II",
+        "ramos": [
+          {
+            "nombre": "Cálculo II",
+            "codigo": "calculo2",
+            "requisitos": [
+              "calculo1"
+            ]
+          },
+          {
+            "nombre": "Álgebra Lineal",
+            "codigo": "algeLineal",
+            "requisitos": [
+              "algebra"
+            ]
+          },
+          {
+            "nombre": "Física I",
+            "codigo": "fisica1",
+            "requisitos": [
+              "quimica"
+            ]
+          },
+          {
+            "nombre": "Taller de Comunicación I",
+            "codigo": "com1",
+            "requisitos": []
+          },
+          {
+            "nombre": "Formación Integral II",
+            "codigo": "fi2",
+            "requisitos": [
+              "fi1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "año": "2° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre III",
+        "ramos": [
+          {
+            "nombre": "Cálculo III",
+            "codigo": "calculo3",
+            "requisitos": [
+              "calculo2"
+            ]
+          },
+          {
+            "nombre": "Ecuaciones Diferenciales",
+            "codigo": "ecDif",
+            "requisitos": [
+              "calculo2"
+            ]
+          },
+          {
+            "nombre": "Física II",
+            "codigo": "fisica2",
+            "requisitos": [
+              "fisica1"
+            ]
+          },
+          {
+            "nombre": "Taller de Comunicación II",
+            "codigo": "com2",
+            "requisitos": [
+              "com1"
+            ]
+          },
+          {
+            "nombre": "Introducción a la Ciencia de Datos",
+            "codigo": "datos",
+            "requisitos": []
+          },
+          {
+            "nombre": "Programación",
+            "codigo": "prog",
+            "requisitos": []
+          }
+        ]
+      },
+      {
+        "nombre": "Semestre IV",
+        "ramos": [
+          {
+            "nombre": "Cálculo IV",
+            "codigo": "calculo4",
+            "requisitos": [
+              "calculo3"
+            ]
+          },
+          {
+            "nombre": "Fenómenos Determinísticos",
+            "codigo": "fdeter",
+            "requisitos": [
+              "ecDif"
+            ]
+          },
+          {
+            "nombre": "Campos Electromagnéticos",
+            "codigo": "campos",
+            "requisitos": [
+              "fisica2"
+            ]
+          },
+          {
+            "nombre": "Laboratorio de Fenómenos y Sistemas",
+            "codigo": "labFen",
+            "requisitos": [
+              "com2"
+            ]
+          },
+          {
+            "nombre": "Inglés Comunicacional I",
+            "codigo": "ingles1",
+            "requisitos": [
+              "sct70"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "año": "3° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre V",
+        "ramos": [
+          {
+            "nombre": "Métodos Numéricos",
+            "codigo": "metNum",
+            "requisitos": [
+              "calculo4",
+              "fdeter"
+            ]
+          },
+          {
+            "nombre": "Métodos Aplicados a la Ingeniería",
+            "codigo": "metIng",
+            "requisitos": [
+              "labFen"
+            ]
+          },
+          {
+            "nombre": "Máquinas Eléctricas",
+            "codigo": "maqElec",
+            "requisitos": [
+              "campos"
+            ]
+          },
+          {
+            "nombre": "Análisis de Sistemas",
+            "codigo": "anaSis",
+            "requisitos": [
+              "prog"
+            ]
+          },
+          {
+            "nombre": "Inglés Comunicacional II",
+            "codigo": "ingles2",
+            "requisitos": [
+              "ingles1"
+            ]
+          }
+        ]
+      },
+      {
+        "nombre": "Semestre VI",
+        "ramos": [
+          {
+            "nombre": "Economía",
+            "codigo": "eco",
+            "requisitos": [
+              "metNum"
+            ]
+          },
+          {
+            "nombre": "Sistemas de Potencia I",
+            "codigo": "pot1",
+            "requisitos": [
+              "maqElec"
+            ]
+          },
+          {
+            "nombre": "Laboratorio de Máquinas Eléctricas",
+            "codigo": "labMaq",
+            "requisitos": [
+              "maqElec"
+            ]
+          },
+          {
+            "nombre": "Termoelectricidad",
+            "codigo": "termo",
+            "requisitos": [
+              "anaSis"
+            ]
+          },
+          {
+            "nombre": "Electrónica I",
+            "codigo": "elec1",
+            "requisitos": [
+              "prog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "año": "4° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre VII",
+        "ramos": [
+          {
+            "nombre": "Gestión Industrial",
+            "codigo": "gestInd",
+            "requisitos": [
+              "eco"
+            ]
+          },
+          {
+            "nombre": "Distribución de Energía",
+            "codigo": "dist",
+            "requisitos": [
+              "pot1"
+            ]
+          },
+          {
+            "nombre": "Control de Energía",
+            "codigo": "ctrlEner",
+            "requisitos": [
+              "labMaq"
+            ]
+          },
+          {
+            "nombre": "Control Automático",
+            "codigo": "ctrlAuto",
+            "requisitos": [
+              "termo"
+            ]
+          },
+          {
+            "nombre": "Electrónica II",
+            "codigo": "elec2",
+            "requisitos": [
+              "elec1"
+            ]
+          },
+          {
+            "nombre": "Inglés Comunicacional III",
+            "codigo": "ingles3",
+            "requisitos": [
+              "ingles2"
+            ]
+          }
+        ]
+      },
+      {
+        "nombre": "Semestre VIII",
+        "ramos": [
+          {
+            "nombre": "Producción",
+            "codigo": "produccion",
+            "requisitos": [
+              "gestInd"
+            ]
+          },
+          {
+            "nombre": "Sistemas de Potencia II",
+            "codigo": "pot2",
+            "requisitos": [
+              "dist"
+            ]
+          },
+          {
+            "nombre": "Sistemas de Protección",
+            "codigo": "proteccion",
+            "requisitos": [
+              "ctrlEner"
+            ]
+          },
+          {
+            "nombre": "Mantenimiento y Seguridad",
+            "codigo": "mants",
+            "requisitos": [
+              "elec2"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional I",
+            "codigo": "ep1",
+            "requisitos": [
+              "sct180"
+            ]
+          },
+          {
+            "nombre": "Electivo de Formación Integral",
+            "codigo": "efi",
+            "requisitos": [
+              "fi2"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "año": "5° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre IX",
+        "ramos": [
+          {
+            "nombre": "Proyecto y Eval. de Inversiones",
+            "codigo": "proyEval",
+            "requisitos": [
+              "produccion"
+            ]
+          },
+          {
+            "nombre": "Accionamientos Eléctricos",
+            "codigo": "acci",
+            "requisitos": [
+              "proteccion"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional II",
+            "codigo": "ep2",
+            "requisitos": [
+              "ep1"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional III",
+            "codigo": "ep3",
+            "requisitos": [
+              "ep2"
+            ]
+          },
+          {
+            "nombre": "Práctica Profesional",
+            "codigo": "practica",
+            "requisitos": [
+              "sct240"
+            ]
+          }
+        ]
+      },
+      {
+        "nombre": "Semestre X",
+        "ramos": [
+          {
+            "nombre": "Gestión de Personal",
+            "codigo": "gestPers",
+            "requisitos": [
+              "proyEval"
+            ]
+          },
+          {
+            "nombre": "Proyecto Eléctrico",
+            "codigo": "proyElec",
+            "requisitos": [
+              "acci"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional IV",
+            "codigo": "ep4",
+            "requisitos": [
+              "ep3"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional V",
+            "codigo": "ep5",
+            "requisitos": [
+              "ep4"
+            ]
+          },
+          {
+            "nombre": "Electivo Profesional VI",
+            "codigo": "ep6",
+            "requisitos": [
+              "ep5"
+            ]
+          },
+          {
+            "nombre": "Formación Integral IV",
+            "codigo": "fi4",
+            "requisitos": [
+              "formacion_integral3"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "año": "6° Año",
+    "semestres": [
+      {
+        "nombre": "Semestre XI",
+        "ramos": [
+          {
+            "nombre": "Proyecto de Título",
+            "codigo": "proyTitulo",
+            "requisitos": [
+              "sct270"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+    const mallaDiv = document.getElementById("malla");
+    const progreso = JSON.parse(localStorage.getItem("progresoMalla")) || {};
+
+    function guardarProgreso() {
+      localStorage.setItem("progresoMalla", JSON.stringify(progreso));
+    }
+
+    function crearCurso(ramo) {
+      const div = document.createElement("div");
+      div.className = "course";
+      div.textContent = ramo.nombre;
+      div.dataset.codigo = ramo.codigo;
+
+      const completado = progreso[ramo.codigo];
+      const requisitosCompletos = ramo.requisitos.every(r => progreso[r] || !r.startsWith("sct"));
+
+      if (completado) div.classList.add("completed");
+      else if (!requisitosCompletos && ramo.requisitos.length > 0) {
+        div.classList.add("locked");
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        const faltantes = ramo.requisitos.filter(r => !progreso[r] && !r.startsWith("sct")).join(", ") || "SCT insuficientes";
+        tooltip.textContent = "Faltan: " + faltantes;
+        div.appendChild(tooltip);
+      }
+
+      div.addEventListener("click", () => {
+        if (div.classList.contains("locked")) return;
+
+        progreso[ramo.codigo] = !progreso[ramo.codigo];
+        guardarProgreso();
+        renderMalla();
+      });
+
+      return div;
+    }
+
+    function renderMalla() {
+      mallaDiv.innerHTML = "";
+      cursos.forEach(curso => {
+        const yearDiv = document.createElement("div");
+        yearDiv.className = "year";
+        const yearTitle = document.createElement("h2");
+        yearTitle.textContent = curso.año;
+        yearDiv.appendChild(yearTitle);
+
+        curso.semestres.forEach(sem => {
+          const semDiv = document.createElement("div");
+          semDiv.className = "semester";
+          const semTitle = document.createElement("h3");
+          semTitle.textContent = sem.nombre;
+          semDiv.appendChild(semTitle);
+
+          sem.ramos.forEach(ramo => {
+            semDiv.appendChild(crearCurso(ramo));
+          });
+
+          yearDiv.appendChild(semDiv);
+        });
+
+        mallaDiv.appendChild(yearDiv);
+      });
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
